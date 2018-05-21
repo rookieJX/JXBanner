@@ -14,6 +14,9 @@
 #define kJXBannerViewCellIdentifier @"kJXBannerViewCellIdentifier"
 #define kJXBannerCellClass          [JXBannerCell class]
 
+#define kJXBannerTransformScale 0.85  // 变形比例
+#define kJXBannerTransFormTime  0.5   // 变形时间
+
 #define kJX_IPHONEX_TOP 88.0f  // 如果是iPhone X，banner轮播距离顶部距离
 #define kJX_IPHONE_TOP  64.0f  // 如果是iPhone，banner轮播距离顶部距离
 
@@ -24,9 +27,7 @@
 
 @interface JXBannerView ()<UICollectionViewDelegate,UICollectionViewDataSource>
 /** 数据源 */
-@property (nonatomic,strong) NSArray * bannerSources;
-/** 数据源个数 */
-@property (nonatomic,assign) NSInteger bannerSourceCount;
+@property (nonatomic,strong) NSMutableArray * bannerSources;
 /** 轮播图背景 */
 @property (nonatomic,strong) UICollectionView * bannerView;
 /** 轮播图布局 */
@@ -39,8 +40,6 @@
 @property (nonatomic,assign) double timerInterVal;
 /** 当前轮播图位置 */
 @property (nonatomic,assign) NSInteger currentBannerIndex;
-/** 开始拖拽时当前位置 */
-@property(nonatomic, assign) NSInteger draggingIndex;
 /** 最后一次轮播图停止的位置 */
 @property(nonatomic, assign) CGFloat lastContentOffset;
 /** 背景图片 */
@@ -62,7 +61,8 @@
 
 #pragma mark - UI
 - (void)setupUI {
-    self.timerInterVal  = 2;
+    self.timerInterVal  = 5;
+    self.bannerSources = @[].mutableCopy;
     
     [self addSubview:self.bannerBackImageView];
     
@@ -71,8 +71,14 @@
 - (void)setupBannerSources:(NSArray *)banners {
     if (banners.count == 0) return;
     
-    self.bannerSources = banners;
-    self.bannerSourceCount  = banners.count;
+    [self.bannerSources removeAllObjects];
+    [self.bannerSources addObjectsFromArray:banners];
+  
+    if (self.bannerSources.count > 0) {
+        [self.bannerSources insertObject:[banners lastObject] atIndex:0];
+        [self.bannerSources addObject:[banners firstObject]];
+        [self.bannerView setContentOffset:CGPointMake([UIScreen mainScreen].bounds.size.width, 0) animated:NO];
+    }
     
     [self.bannerView reloadData];
     
@@ -85,7 +91,7 @@
     return 1;
 }
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return self.bannerSourceCount;
+    return self.bannerSources.count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -99,7 +105,6 @@
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     
     CGFloat curretContentOffset = scrollView.contentOffset.x;
-    
     if (scrollView.isDragging || scrollView.isDecelerating) { // 拖动
         if (self.lastContentOffset > curretContentOffset) { // 轮播图反向轮播
             [self setupBannerStartReverse:scrollView];
@@ -109,12 +114,10 @@
     } else { // 自动滚动（只有正向轮播）
         [self setupBannerStartPositive:scrollView];
     }
-    
     self.lastContentOffset = curretContentOffset;
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
-    self.draggingIndex = [self currentBannerIndex];
     [self stopTimer];
 }
 
@@ -123,14 +126,16 @@
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-    self.lastContentOffset = scrollView.contentOffset.x;
     
+    self.lastContentOffset = scrollView.contentOffset.x;
+
     [self setupBannerScrollEnd:scrollView];
 }
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
     [self setupBannerScrollEnd:scrollView];
 }
+
 
 #pragma mark - Timer
 // 定时器模块
@@ -150,62 +155,88 @@
 #pragma mark - Target
 // 定时器任务
 - (void)actionForAutoScroll {
-    if (self.bannerSourceCount == 0) return;
+    if (self.bannerSources.count == 0) return;
     NSUInteger currentIndex = [self currentBannerIndex];
     NSUInteger targetIndex  = currentIndex + 1;
     
     // 设置转动效果
     UICollectionViewCell *cell = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForRow:currentIndex inSection:0]];
-    [UIView animateWithDuration:0.25 animations:^{
-        cell.transform = CGAffineTransformMakeScale(0.85, 0.85);
+    [UIView animateWithDuration:kJXBannerTransFormTime animations:^{
+        cell.transform = CGAffineTransformMakeScale(kJXBannerTransformScale, kJXBannerTransformScale);
     } completion:^(BOOL finished) {
         [self scrollToIndex:targetIndex];
     }];
 }
 
 - (void)scrollToIndex:(NSInteger)targetIndex {
-    if (targetIndex >= self.bannerSourceCount) {
-        [self.bannerView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:0] atScrollPosition:UICollectionViewScrollPositionNone animated:NO];
-        return;
-    }
+    if (targetIndex >= self.bannerSources.count) return;
     [self.bannerView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:targetIndex inSection:0] atScrollPosition:UICollectionViewScrollPositionNone animated:YES];
 }
 
 // 轮播图正向轮播
 - (void)setupBannerStartPositive:(UIScrollView *)scrollView {
-    UICollectionViewCell *cell1 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:self.draggingIndex inSection:0]];
-    UICollectionViewCell *cell2 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:(self.draggingIndex + 1 >= self.bannerSourceCount) ? 0 : self.draggingIndex + 1 inSection:0]];
     
-    [UIView animateWithDuration:0.1 animations:^{
-        cell1.transform = CGAffineTransformMakeScale(0.85, 0.85);
-        cell2.transform = CGAffineTransformMakeScale(0.85, 0.85);
-    }];
+    UICollectionViewCell *cell1 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:self.currentBannerIndex inSection:0]];
+    UICollectionViewCell *cell2 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:(self.currentBannerIndex + 1 >= self.bannerSources.count) ? 0 : self.currentBannerIndex + 1 inSection:0]];
+    
+    cell1.transform = CGAffineTransformMakeScale(kJXBannerTransformScale, kJXBannerTransformScale);
+    cell2.transform = CGAffineTransformMakeScale(kJXBannerTransformScale, kJXBannerTransformScale);
+    
+    [self setupBannerBoundary:scrollView];
+    
+
 }
 
 // 轮播图反向轮播
 - (void)setupBannerStartReverse:(UIScrollView *)scrollView {
-    UICollectionViewCell *cell1 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:self.draggingIndex inSection:0]];
-    UICollectionViewCell *cell2 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:(self.draggingIndex - 1 < 0) ? self.bannerSourceCount : self.draggingIndex - 1 inSection:0]];
     
-    [UIView animateWithDuration:0.1 animations:^{
-        cell1.transform = CGAffineTransformMakeScale(0.85, 0.85);
-        cell2.transform = CGAffineTransformMakeScale(0.85, 0.85);
-    }];
+    UICollectionViewCell *cell1 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:self.currentBannerIndex inSection:0]];
+    UICollectionViewCell *cell2 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:(self.currentBannerIndex - 1 < 0) ? self.bannerSources.count : self.currentBannerIndex - 1 inSection:0]];
+    
+    cell1.transform = CGAffineTransformMakeScale(kJXBannerTransformScale, kJXBannerTransformScale);
+    cell2.transform = CGAffineTransformMakeScale(kJXBannerTransformScale, kJXBannerTransformScale);
+    
+    [self setupBannerBoundary:scrollView];
+    
 }
 
 // 轮播结束后复原
 - (void)setupBannerScrollEnd:(UIScrollView *)scrollView {
     NSInteger currentIndex = [self currentBannerIndex];
     
-    UICollectionViewCell *cell1 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:currentIndex inSection:0]];
-    UICollectionViewCell *cell2 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:(currentIndex + 1 >= self.bannerSourceCount) ? 0 : currentIndex + 1 inSection:0]];
-    UICollectionViewCell *cell3 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:(currentIndex - 1 < 0) ? self.bannerSourceCount : currentIndex - 1 inSection:0]];
     
-    [UIView animateWithDuration:0.2 animations:^{
+    UICollectionViewCell *boundryCell = nil;
+    
+    if (currentIndex == 0) {
+        boundryCell = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:(self.bannerSources.count - 2) inSection:0]];
+    } else if ((int)currentIndex == self.bannerSources.count - 1 ) {
+        boundryCell = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:1 inSection:0]];
+    }
+    
+    UICollectionViewCell *cell1 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:currentIndex inSection:0]];
+    UICollectionViewCell *cell2 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:(currentIndex + 1 >= self.bannerSources.count) ? 0 : currentIndex + 1 inSection:0]];
+    UICollectionViewCell *cell3 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:(currentIndex - 1 < 0) ? self.bannerSources.count : currentIndex - 1 inSection:0]];
+    
+    [UIView animateWithDuration:kJXBannerTransFormTime animations:^{
+        
+        boundryCell.transform = CGAffineTransformMakeScale(1, 1);
         cell1.transform = CGAffineTransformMakeScale(1, 1);
         cell2.transform = CGAffineTransformMakeScale(1, 1);
         cell3.transform = CGAffineTransformMakeScale(1, 1);
     }];
+}
+
+// 轮播图临界位置处理
+- (void)setupBannerBoundary:(UIScrollView *)scrollView {
+    
+    CGFloat page = scrollView.contentOffset.x / scrollView.bounds.size.width ;
+    if (page == 0) {
+        
+        [scrollView setContentOffset:CGPointMake([UIScreen mainScreen].bounds.size.width*(self.bannerSources.count - 2), 0) animated:NO];
+    } else if ((int)page == self.bannerSources.count - 1 ) {
+        
+        [scrollView setContentOffset:CGPointMake([UIScreen mainScreen].bounds.size.width, 0) animated:NO];
+    }
 }
 #pragma mark - Get
 - (CGFloat)bannerTopMargin {
