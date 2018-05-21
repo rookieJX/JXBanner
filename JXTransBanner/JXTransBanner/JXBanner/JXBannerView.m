@@ -78,6 +78,7 @@
         [self.bannerSources insertObject:[banners lastObject] atIndex:0];
         [self.bannerSources addObject:[banners firstObject]];
         [self.bannerView setContentOffset:CGPointMake([UIScreen mainScreen].bounds.size.width, 0) animated:NO];
+        [self setupCurrentBackImageViewWithIndex:1];
     }
     
     [self.bannerView reloadData];
@@ -125,15 +126,20 @@
     [self startTimer];
 }
 
+// 手动转动结束
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
     
     self.lastContentOffset = scrollView.contentOffset.x;
 
     [self setupBannerScrollEnd:scrollView];
+    [self setupCurrentBackImageViewWithIndex:self.currentBannerIndex];
 }
 
+// 自动转动结束
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
     [self setupBannerScrollEnd:scrollView];
+    
+    [self setupCurrentBackImageViewWithIndex:self.currentBannerIndex];
 }
 
 
@@ -237,6 +243,13 @@
         
         [scrollView setContentOffset:CGPointMake([UIScreen mainScreen].bounds.size.width, 0) animated:NO];
     }
+}
+
+// 处理当前背景图片
+- (void)setupCurrentBackImageViewWithIndex:(NSInteger)index {
+    if (self.bannerSources.count <= index) return;
+    JXBannerModel *model = [self.bannerSources objectAtIndex:index];
+    [self.bannerBackImageView sd_setImageWithURL:[NSURL URLWithString:model.backImageUrlStr]];
 }
 #pragma mark - Get
 - (CGFloat)bannerTopMargin {
