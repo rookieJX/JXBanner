@@ -44,6 +44,7 @@
 		263C29A920AF196E0074CF27 /* UIView+WebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 263C298820AF196E0074CF27 /* UIView+WebCache.m */; };
 		263C29AA20AF196E0074CF27 /* SDWebImageImageIOCoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 263C298A20AF196E0074CF27 /* SDWebImageImageIOCoder.m */; };
 		263C29AB20AF196E0074CF27 /* UIButton+WebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 263C298E20AF196E0074CF27 /* UIButton+WebCache.m */; };
+		263C29AE20B467080074CF27 /* JXBannerMaskView.m in Sources */ = {isa = PBXBuildFile; fileRef = 263C29AD20B467080074CF27 /* JXBannerMaskView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -118,6 +119,8 @@
 		263C298D20AF196E0074CF27 /* UIImage+MultiFormat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+MultiFormat.h"; sourceTree = "<group>"; };
 		263C298E20AF196E0074CF27 /* UIButton+WebCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIButton+WebCache.m"; sourceTree = "<group>"; };
 		263C298F20AF196E0074CF27 /* UIImage+GIF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+GIF.h"; sourceTree = "<group>"; };
+		263C29AC20B467080074CF27 /* JXBannerMaskView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JXBannerMaskView.h; sourceTree = "<group>"; };
+		263C29AD20B467080074CF27 /* JXBannerMaskView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JXBannerMaskView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -174,6 +177,8 @@
 				263C295220AF0D670074CF27 /* JXBannerModel.m */,
 				263C295420AF183A0074CF27 /* JXBannerCell.h */,
 				263C295520AF183A0074CF27 /* JXBannerCell.m */,
+				263C29AC20B467080074CF27 /* JXBannerMaskView.h */,
+				263C29AD20B467080074CF27 /* JXBannerMaskView.m */,
 			);
 			path = JXBanner;
 			sourceTree = "<group>";
@@ -348,6 +353,7 @@
 				263C299920AF196E0074CF27 /* UIImage+MultiFormat.m in Sources */,
 				263C299E20AF196E0074CF27 /* NSButton+WebCache.m in Sources */,
 				263C294720AF07D00074CF27 /* main.m in Sources */,
+				263C29AE20B467080074CF27 /* JXBannerMaskView.m in Sources */,
 				263C29A920AF196E0074CF27 /* UIView+WebCache.m in Sources */,
 				263C293920AF07CE0074CF27 /* AppDelegate.m in Sources */,
 				263C29A820AF196E0074CF27 /* UIView+WebCacheOperation.m in Sources */,

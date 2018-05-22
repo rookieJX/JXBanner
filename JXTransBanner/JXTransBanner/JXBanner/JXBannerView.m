@@ -44,7 +44,6 @@
 @property(nonatomic, assign) CGFloat lastContentOffset;
 /** 背景图片 */
 @property (nonatomic,strong) UIImageView * bannerBackImageView;
-
 @end
 
 @implementation JXBannerView
@@ -306,4 +305,6 @@
     }
     return _bannerBackImageView;
 }
+
+
 @end
