@@ -25,7 +25,7 @@
 #define JXUI_IS_IPHONE      ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) // 判断是否是iPhone
 #define JXUI_IS_IPHONEX     (JXUI_IS_IPHONE && [[UIScreen mainScreen] bounds].size.height == 812.0) // 判断是否是iPhone X
 
-@interface JXBannerView ()<UICollectionViewDelegate,UICollectionViewDataSource>
+@interface JXBannerView ()<UICollectionViewDelegate,UICollectionViewDataSource,JXBannerCellDelegate>
 /** 数据源 */
 @property (nonatomic,strong) NSMutableArray * bannerSources;
 /** 轮播图背景 */
@@ -97,6 +97,7 @@
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     JXBannerCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kJXBannerViewCellIdentifier forIndexPath:indexPath];
+    cell.delegate   = self;
     JXBannerModel  *model = [self.bannerSources objectAtIndex:indexPath.row];
     [cell setupBannerDataWithModel:model];
     return cell;
@@ -141,7 +142,19 @@
     
     [self setupCurrentBackImageViewWithIndex:self.currentBannerIndex];
 }
-
+#pragma mark - JXBannerCellDelegate
+- (void)bannerCellActionForLongPressStart:(JXBannerCell *)cell {
+    [self stopTimer];
+    [UIView animateWithDuration:kJXBannerTransFormTime animations:^{
+        cell.transform = CGAffineTransformMakeScale(kJXBannerTransformScale, kJXBannerTransformScale);
+    }];
+}
+- (void)bannerCellActionForLongPressEnd:(JXBannerCell *)cell {
+    [self startTimer];
+    [UIView animateWithDuration:kJXBannerTransFormTime animations:^{
+        cell.transform = CGAffineTransformMakeScale(1, 1);
+    }];
+}
 
 #pragma mark - Timer
 // 定时器模块

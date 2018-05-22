@@ -36,9 +36,28 @@
     self.bannerImageView = [[UIImageView alloc] initWithFrame:CGRectMake(kJXBannerCellMargin, 0, self.frame.size.width-kJXBannerCellMargin-kJXBannerCellMargin, self.frame.size.height)];
     self.bannerImageView.image = [UIImage imageNamed:@"01"];
     [self.contentView addSubview:self.bannerImageView];
+    
+    // 添加长按手势
+    [self addGestureRecognizer:[[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPressClick:)]];
+
 }
 
 - (void)setupBannerDataWithModel:(JXBannerModel *)model {
     [self.bannerImageView sd_setImageWithURL:[NSURL URLWithString:model.imageUrlStr] placeholderImage:[UIImage imageNamed:@"01"]];
 }
+
+#pragma mark - Target
+- (void)longPressClick:(UILongPressGestureRecognizer *)gesture {
+    if (gesture.state == UIGestureRecognizerStateEnded) {
+        if (self.delegate && [self.delegate respondsToSelector:@selector(bannerCellActionForLongPressEnd:)]) {
+            [self.delegate bannerCellActionForLongPressEnd:self];
+        }
+    } else {
+        if (self.delegate && [self.delegate respondsToSelector:@selector(bannerCellActionForLongPressStart:)]) {
+            [self.delegate bannerCellActionForLongPressStart:self];
+        }
+    }
+    
+}
+
 @end
