@@ -10,6 +10,8 @@
 #import "JXBannerModel.h"
 #import "JXBannerCell.h"
 #import "UIImageView+WebCache.h"
+#import "JXPageControl.h"
+#import "JXBannerMaskView.h"
 
 #define kJXBannerViewCellIdentifier @"kJXBannerViewCellIdentifier"
 #define kJXBannerCellClass          [JXBannerCell class]
@@ -44,6 +46,12 @@
 @property(nonatomic, assign) CGFloat lastContentOffset;
 /** 背景图片 */
 @property (nonatomic,strong) UIImageView * bannerBackImageView;
+/** 背景 */
+@property (nonatomic,strong) UIView  *bannerMaskView;
+/** 变形背景 */
+@property (nonatomic,strong) JXBannerMaskView *bannerTransformMaskView;
+/** 指示器 */
+@property (nonatomic,strong) JXPageControl *pageControl;
 @end
 
 @implementation JXBannerView
@@ -64,14 +72,21 @@
     self.bannerSources = @[].mutableCopy;
     
     [self addSubview:self.bannerBackImageView];
+    [self addSubview:self.bannerView];
+    [self addSubview:self.pageControl];
     
+    self.bannerBackImageView.maskView = self.bannerMaskView;
+    
+    [self.bannerMaskView addSubview:self.bannerTransformMaskView];
 }
 
+#pragma mark - Meth
 - (void)setupBannerSources:(NSArray *)banners {
     if (banners.count == 0) return;
     
     [self.bannerSources removeAllObjects];
     [self.bannerSources addObjectsFromArray:banners];
+    self.pageControl.numberOfPages  = banners.count;
   
     if (self.bannerSources.count > 0) {
         [self.bannerSources insertObject:[banners lastObject] atIndex:0];
@@ -199,6 +214,7 @@
     
     cell1.transform = CGAffineTransformMakeScale(kJXBannerTransformScale, kJXBannerTransformScale);
     cell2.transform = CGAffineTransformMakeScale(kJXBannerTransformScale, kJXBannerTransformScale);
+
     
     [self setupBannerBoundary:scrollView];
     
@@ -251,9 +267,13 @@
     if (page == 0) {
         
         [scrollView setContentOffset:CGPointMake([UIScreen mainScreen].bounds.size.width*(self.bannerSources.count - 2), 0) animated:NO];
+        self.pageControl.currentPage = self.bannerSources.count - 2;
     } else if ((int)page == self.bannerSources.count - 1 ) {
         
         [scrollView setContentOffset:CGPointMake([UIScreen mainScreen].bounds.size.width, 0) animated:NO];
+        self.pageControl.currentPage = 0;
+    } else {
+        self.pageControl.currentPage    = (int)page - 1;
     }
 }
 
@@ -294,7 +314,6 @@
         _bannerView.backgroundColor = [UIColor clearColor];
         _bannerView.showsHorizontalScrollIndicator  = NO;
         [_bannerView registerClass:kJXBannerCellClass forCellWithReuseIdentifier:kJXBannerViewCellIdentifier];
-        [self addSubview:_bannerView];
     }
     return _bannerView;
 }
@@ -306,5 +325,25 @@
     return _bannerBackImageView;
 }
 
+- (UIView *)bannerMaskView {
+    if (_bannerMaskView == nil) {
+        _bannerMaskView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height-kJXBannerBackImageViewBottomMargin)];
+    }
+    return _bannerMaskView;
+}
+
+- (JXBannerMaskView *)bannerTransformMaskView {
+    if (_bannerTransformMaskView == nil) {
+        _bannerTransformMaskView = [[JXBannerMaskView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height-kJXBannerBackImageViewBottomMargin)];
+    }
+    return _bannerTransformMaskView;
+}
+
+- (JXPageControl *)pageControl {
+    if (_pageControl == nil) {
+        _pageControl = [[JXPageControl alloc] initWithFrame:CGRectMake(0, self.frame.size.height-30, self.frame.size.width, 30)];
+    }
+    return _pageControl;
+}
 
 @end

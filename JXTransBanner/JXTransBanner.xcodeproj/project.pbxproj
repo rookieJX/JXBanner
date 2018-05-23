@@ -45,6 +45,8 @@
 		263C29AA20AF196E0074CF27 /* SDWebImageImageIOCoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 263C298A20AF196E0074CF27 /* SDWebImageImageIOCoder.m */; };
 		263C29AB20AF196E0074CF27 /* UIButton+WebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 263C298E20AF196E0074CF27 /* UIButton+WebCache.m */; };
 		263C29AE20B467080074CF27 /* JXBannerMaskView.m in Sources */ = {isa = PBXBuildFile; fileRef = 263C29AD20B467080074CF27 /* JXBannerMaskView.m */; };
+		506C2C8620B4FC93004E4006 /* JXPageControl.m in Sources */ = {isa = PBXBuildFile; fileRef = 506C2C8520B4FC93004E4006 /* JXPageControl.m */; };
+		506C2C8A20B4FCB6004E4006 /* UIImage+JXColor.m in Sources */ = {isa = PBXBuildFile; fileRef = 506C2C8920B4FCB6004E4006 /* UIImage+JXColor.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -121,6 +123,10 @@
 		263C298F20AF196E0074CF27 /* UIImage+GIF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+GIF.h"; sourceTree = "<group>"; };
 		263C29AC20B467080074CF27 /* JXBannerMaskView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JXBannerMaskView.h; sourceTree = "<group>"; };
 		263C29AD20B467080074CF27 /* JXBannerMaskView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JXBannerMaskView.m; sourceTree = "<group>"; };
+		506C2C8420B4FC93004E4006 /* JXPageControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JXPageControl.h; sourceTree = "<group>"; };
+		506C2C8520B4FC93004E4006 /* JXPageControl.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JXPageControl.m; sourceTree = "<group>"; };
+		506C2C8820B4FCB6004E4006 /* UIImage+JXColor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIImage+JXColor.h"; sourceTree = "<group>"; };
+		506C2C8920B4FCB6004E4006 /* UIImage+JXColor.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIImage+JXColor.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -153,7 +159,7 @@
 		263C293620AF07CE0074CF27 /* JXTransBanner */ = {
 			isa = PBXGroup;
 			children = (
-				263C294D20AF07E30074CF27 /* JXBanner */,
+				506C2C8220B4FC64004E4006 /* JXBanner */,
 				263C293720AF07CE0074CF27 /* AppDelegate.h */,
 				263C293820AF07CE0074CF27 /* AppDelegate.m */,
 				263C293A20AF07CE0074CF27 /* ViewController.h */,
@@ -168,7 +174,7 @@
 			path = JXTransBanner;
 			sourceTree = "<group>";
 		};
-		263C294D20AF07E30074CF27 /* JXBanner */ = {
+		263C294D20AF07E30074CF27 /* JXBannerView */ = {
 			isa = PBXGroup;
 			children = (
 				263C294E20AF08040074CF27 /* JXBannerView.h */,
@@ -180,7 +186,7 @@
 				263C29AC20B467080074CF27 /* JXBannerMaskView.h */,
 				263C29AD20B467080074CF27 /* JXBannerMaskView.m */,
 			);
-			path = JXBanner;
+			path = JXBannerView;
 			sourceTree = "<group>";
 		};
 		263C295720AF196D0074CF27 /* SDWebImage */ = {
@@ -251,6 +257,34 @@
 				263C298F20AF196E0074CF27 /* UIImage+GIF.h */,
 			);
 			path = SDWebImage;
+			sourceTree = "<group>";
+		};
+		506C2C8220B4FC64004E4006 /* JXBanner */ = {
+			isa = PBXGroup;
+			children = (
+				506C2C8720B4FCA0004E4006 /* Extensionn */,
+				506C2C8320B4FC6D004E4006 /* JXPageView */,
+				263C294D20AF07E30074CF27 /* JXBannerView */,
+			);
+			path = JXBanner;
+			sourceTree = "<group>";
+		};
+		506C2C8320B4FC6D004E4006 /* JXPageView */ = {
+			isa = PBXGroup;
+			children = (
+				506C2C8420B4FC93004E4006 /* JXPageControl.h */,
+				506C2C8520B4FC93004E4006 /* JXPageControl.m */,
+			);
+			path = JXPageView;
+			sourceTree = "<group>";
+		};
+		506C2C8720B4FCA0004E4006 /* Extensionn */ = {
+			isa = PBXGroup;
+			children = (
+				506C2C8820B4FCB6004E4006 /* UIImage+JXColor.h */,
+				506C2C8920B4FCB6004E4006 /* UIImage+JXColor.m */,
+			);
+			path = Extensionn;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -338,6 +372,7 @@
 				263C29A420AF196E0074CF27 /* UIImageView+WebCache.m in Sources */,
 				263C299620AF196E0074CF27 /* SDWebImageCodersManager.m in Sources */,
 				263C299320AF196E0074CF27 /* UIImageView+HighlightedWebCache.m in Sources */,
+				506C2C8A20B4FCB6004E4006 /* UIImage+JXColor.m in Sources */,
 				263C299720AF196E0074CF27 /* SDWebImageDownloader.m in Sources */,
 				263C29A320AF196E0074CF27 /* NSData+ImageContentType.m in Sources */,
 				263C299520AF196E0074CF27 /* UIImage+ForceDecode.m in Sources */,
@@ -351,6 +386,7 @@
 				263C293C20AF07CE0074CF27 /* ViewController.m in Sources */,
 				263C295320AF0D670074CF27 /* JXBannerModel.m in Sources */,
 				263C299920AF196E0074CF27 /* UIImage+MultiFormat.m in Sources */,
+				506C2C8620B4FC93004E4006 /* JXPageControl.m in Sources */,
 				263C299E20AF196E0074CF27 /* NSButton+WebCache.m in Sources */,
 				263C294720AF07D00074CF27 /* main.m in Sources */,
 				263C29AE20B467080074CF27 /* JXBannerMaskView.m in Sources */,
