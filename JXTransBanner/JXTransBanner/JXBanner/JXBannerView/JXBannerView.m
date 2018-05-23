@@ -62,7 +62,7 @@
 
 @implementation JXBannerView
 
-#pragma mark - Init
+#pragma mark -  Init
 - (instancetype)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
@@ -152,21 +152,22 @@
 
 // 手动转动结束
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-    
+    NSLog(@"手动拖动结束----");
     self.lastContentOffset = scrollView.contentOffset.x;
 
     [self setupBannerScrollEnd:scrollView];
     
-    [self setupCurrentBackBottomImageViewWithIndex:self.currentBannerIndex];
     [self setupCurrentBackImageViewWithIndex:self.currentBannerIndex];
+    [self setupCurrentBackBottomImageViewWithIndex:self.currentBannerIndex];
 }
 
 // 自动转动结束
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
+    NSLog(@"自动拖动结束----");
     [self setupBannerScrollEnd:scrollView];
     
-    [self setupCurrentBackBottomImageViewWithIndex:self.currentBannerIndex];
     [self setupCurrentBackImageViewWithIndex:self.currentBannerIndex];
+    [self setupCurrentBackBottomImageViewWithIndex:self.currentBannerIndex];
 }
 #pragma mark - JXBannerCellDelegate
 - (void)bannerCellActionForLongPressStart:(JXBannerCell *)cell {
@@ -187,8 +188,8 @@
 - (void)startTimer {
     [self stopTimer];
     
-    self.timer = [NSTimer timerWithTimeInterval:self.timerInterVal target:self selector:@selector(actionForAutoScroll) userInfo:nil repeats:YES];
-    [[NSRunLoop mainRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
+//    self.timer = [NSTimer timerWithTimeInterval:self.timerInterVal target:self selector:@selector(actionForAutoScroll) userInfo:nil repeats:YES];
+//    [[NSRunLoop mainRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
 }
 - (void)stopTimer {
     if (_timer != nil) {
@@ -220,7 +221,7 @@
 
 // 轮播图正向轮播
 - (void)setupBannerStartPositive:(UIScrollView *)scrollView {
-    
+    NSLog(@"正向拖动轮播-----");
     NSInteger currentIndex = self.currentBannerIndex;
     NSInteger nextIndex = (currentIndex + 1) >= self.bannerSources.count ? 0 : currentIndex + 1;
     
@@ -233,11 +234,9 @@
     // 设置背景图片
     NSInteger currentPage = scrollView.contentOffset.x / scrollView.bounds.size.width;
     NSInteger nextPage    = (currentPage + 1) >= self.bannerSources.count ? 0 : currentPage + 1;
-    [self setupCurrentBackBottomImageViewWithIndex:nextPage];
-    
+    [self setupCurrentBackImageViewWithIndex:nextPage];
     
     [self.bannerTransformMaskViewRight setRadius:((scrollView.contentOffset.x - kJXWidth * currentPage)*2) direction:JXBannerMaskViewDirectionTypeRight];
-    
     [self.bannerTransformMaskViewLeft setRadius:0 direction:JXBannerMaskViewDirectionTypeLeft];
     
     [self setupBannerBoundary:scrollView];
@@ -247,7 +246,7 @@
 
 // 轮播图反向轮播
 - (void)setupBannerStartReverse:(UIScrollView *)scrollView {
-    
+     NSLog(@"反向拖动轮播-----");
     NSInteger currentIndex = self.currentBannerIndex;
     NSInteger preIndex = (currentIndex - 1 < 0) ? self.bannerSources.count : currentIndex - 1;
     
@@ -259,8 +258,7 @@
     
     // 设置背景图片
     NSInteger currentPage = scrollView.contentOffset.x / scrollView.bounds.size.width;
-    NSInteger prePage    = (currentPage - 1 < 0) ? self.bannerSources.count : currentPage - 1;
-    [self setupCurrentBackBottomImageViewWithIndex:prePage];
+    [self setupCurrentBackImageViewWithIndex:currentPage];
     
     [self.bannerTransformMaskViewRight setRadius:0 direction:JXBannerMaskViewDirectionTypeRight];
     

@@ -26,12 +26,12 @@
     [self.view addSubview:bannerView];
     
     JXBannerModel *model1 = [[JXBannerModel alloc] init];
-    model1.imageUrlStr = @"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1526929052618&di=0199e3fe834d8d1a1083df7c4b3b2ad0&imgtype=0&src=http%3A%2F%2Fimg.go007.com%2F2017%2F07%2F17%2F59598f8502e3b551_0.jpg";
-    model1.backImageUrlStr = @"http://md-juhe.oss-cn-hangzhou.aliyuncs.com/upload/ad/20180417/9bc42ce40490c854eab2e9969ac8e328caab0a17.png";
+    model1.imageUrlStr = @"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1527069414919&di=4be144aa2966b48d7c4362daf7c22947&imgtype=0&src=http%3A%2F%2Fent.northtimes.com%2Fu%2Fcms%2Fwww%2F201711%2F300913434d4d.jpg";
+    model1.backImageUrlStr = @"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1527069414919&di=4be144aa2966b48d7c4362daf7c22947&imgtype=0&src=http%3A%2F%2Fent.northtimes.com%2Fu%2Fcms%2Fwww%2F201711%2F300913434d4d.jpg";
     
     JXBannerModel *model2 = [[JXBannerModel alloc] init];
-    model2.imageUrlStr = @"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1526929052618&di=18dc092b0e6fc8a321248cb62c54c365&imgtype=0&src=http%3A%2F%2Fimage.uczzd.cn%2F6328233074651725745.jpeg%3Fid%3D0%26from%3Dexport";
-    model2.backImageUrlStr = @"http://md-juhe.oss-cn-hangzhou.aliyuncs.com/upload/ad/20180417/81e9ad49cba8dc479a09d146a1fabf4b9ef3504d.png";
+    model2.imageUrlStr = @"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1527069441345&di=1c810b4392e5a1ddb8a7a71acc23fa5a&imgtype=0&src=http%3A%2F%2Fpic2.52pk.com%2Ffiles%2F170731%2F7777784_1I6232M.png";
+    model2.backImageUrlStr = @"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1527069441345&di=1c810b4392e5a1ddb8a7a71acc23fa5a&imgtype=0&src=http%3A%2F%2Fpic2.52pk.com%2Ffiles%2F170731%2F7777784_1I6232M.png";
     
     JXBannerModel *model3 = [[JXBannerModel alloc] init];
     model3.imageUrlStr = @"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1526929052623&di=fdbb7da424acfb6f5d32b97c461e5676&imgtype=0&src=http%3A%2F%2Fqimg.hxnews.com%2F2018%2F0329%2F1522291784816.jpg";
