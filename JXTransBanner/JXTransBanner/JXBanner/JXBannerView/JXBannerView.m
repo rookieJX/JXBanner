@@ -16,6 +16,8 @@
 #define kJXBannerViewCellIdentifier @"kJXBannerViewCellIdentifier"
 #define kJXBannerCellClass          [JXBannerCell class]
 
+#define kJXWidth [UIScreen mainScreen].bounds.size.width // 宽度
+
 #define kJXBannerTransformScale 0.85  // 变形比例
 #define kJXBannerTransFormTime  0.5   // 变形时间
 
@@ -46,10 +48,14 @@
 @property(nonatomic, assign) CGFloat lastContentOffset;
 /** 背景图片 */
 @property (nonatomic,strong) UIImageView * bannerBackImageView;
+/** 背景底部图片 */
+@property (nonatomic,strong) UIImageView * bannerBackBottomImageView;
 /** 背景 */
 @property (nonatomic,strong) UIView  *bannerMaskView;
 /** 变形背景 */
-@property (nonatomic,strong) JXBannerMaskView *bannerTransformMaskView;
+@property (nonatomic,strong) JXBannerMaskView *bannerTransformMaskViewLeft;
+/** 变形背景 */
+@property (nonatomic,strong) JXBannerMaskView *bannerTransformMaskViewRight;
 /** 指示器 */
 @property (nonatomic,strong) JXPageControl *pageControl;
 @end
@@ -71,13 +77,15 @@
     self.timerInterVal  = 5;
     self.bannerSources = @[].mutableCopy;
     
+    [self addSubview:self.bannerBackBottomImageView];
     [self addSubview:self.bannerBackImageView];
     [self addSubview:self.bannerView];
     [self addSubview:self.pageControl];
     
     self.bannerBackImageView.maskView = self.bannerMaskView;
     
-    [self.bannerMaskView addSubview:self.bannerTransformMaskView];
+    [self.bannerMaskView addSubview:self.bannerTransformMaskViewLeft];
+    [self.bannerMaskView addSubview:self.bannerTransformMaskViewRight];
 }
 
 #pragma mark - Meth
@@ -91,7 +99,8 @@
     if (self.bannerSources.count > 0) {
         [self.bannerSources insertObject:[banners lastObject] atIndex:0];
         [self.bannerSources addObject:[banners firstObject]];
-        [self.bannerView setContentOffset:CGPointMake([UIScreen mainScreen].bounds.size.width, 0) animated:NO];
+        [self.bannerView setContentOffset:CGPointMake(kJXWidth, 0) animated:NO];
+        [self setupCurrentBackBottomImageViewWithIndex:1];
         [self setupCurrentBackImageViewWithIndex:1];
     }
     
@@ -147,6 +156,8 @@
     self.lastContentOffset = scrollView.contentOffset.x;
 
     [self setupBannerScrollEnd:scrollView];
+    
+    [self setupCurrentBackBottomImageViewWithIndex:self.currentBannerIndex];
     [self setupCurrentBackImageViewWithIndex:self.currentBannerIndex];
 }
 
@@ -154,6 +165,7 @@
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
     [self setupBannerScrollEnd:scrollView];
     
+    [self setupCurrentBackBottomImageViewWithIndex:self.currentBannerIndex];
     [self setupCurrentBackImageViewWithIndex:self.currentBannerIndex];
 }
 #pragma mark - JXBannerCellDelegate
@@ -209,12 +221,24 @@
 // 轮播图正向轮播
 - (void)setupBannerStartPositive:(UIScrollView *)scrollView {
     
-    UICollectionViewCell *cell1 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:self.currentBannerIndex inSection:0]];
-    UICollectionViewCell *cell2 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:(self.currentBannerIndex + 1 >= self.bannerSources.count) ? 0 : self.currentBannerIndex + 1 inSection:0]];
+    NSInteger currentIndex = self.currentBannerIndex;
+    NSInteger nextIndex = (currentIndex + 1) >= self.bannerSources.count ? 0 : currentIndex + 1;
+    
+    UICollectionViewCell *cell1 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:currentIndex inSection:0]];
+    UICollectionViewCell *cell2 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:nextIndex inSection:0]];
     
     cell1.transform = CGAffineTransformMakeScale(kJXBannerTransformScale, kJXBannerTransformScale);
     cell2.transform = CGAffineTransformMakeScale(kJXBannerTransformScale, kJXBannerTransformScale);
-
+    
+    // 设置背景图片
+    NSInteger currentPage = scrollView.contentOffset.x / scrollView.bounds.size.width;
+    NSInteger nextPage    = (currentPage + 1) >= self.bannerSources.count ? 0 : currentPage + 1;
+    [self setupCurrentBackBottomImageViewWithIndex:nextPage];
+    
+    
+    [self.bannerTransformMaskViewRight setRadius:((scrollView.contentOffset.x - kJXWidth * currentPage)*2) direction:JXBannerMaskViewDirectionTypeRight];
+    
+    [self.bannerTransformMaskViewLeft setRadius:0 direction:JXBannerMaskViewDirectionTypeLeft];
     
     [self setupBannerBoundary:scrollView];
     
@@ -224,11 +248,23 @@
 // 轮播图反向轮播
 - (void)setupBannerStartReverse:(UIScrollView *)scrollView {
     
-    UICollectionViewCell *cell1 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:self.currentBannerIndex inSection:0]];
-    UICollectionViewCell *cell2 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:(self.currentBannerIndex - 1 < 0) ? self.bannerSources.count : self.currentBannerIndex - 1 inSection:0]];
+    NSInteger currentIndex = self.currentBannerIndex;
+    NSInteger preIndex = (currentIndex - 1 < 0) ? self.bannerSources.count : currentIndex - 1;
+    
+    UICollectionViewCell *cell1 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:currentIndex inSection:0]];
+    UICollectionViewCell *cell2 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:preIndex inSection:0]];
     
     cell1.transform = CGAffineTransformMakeScale(kJXBannerTransformScale, kJXBannerTransformScale);
     cell2.transform = CGAffineTransformMakeScale(kJXBannerTransformScale, kJXBannerTransformScale);
+    
+    // 设置背景图片
+    NSInteger currentPage = scrollView.contentOffset.x / scrollView.bounds.size.width;
+    NSInteger prePage    = (currentPage - 1 < 0) ? self.bannerSources.count : currentPage - 1;
+    [self setupCurrentBackBottomImageViewWithIndex:prePage];
+    
+    [self.bannerTransformMaskViewRight setRadius:0 direction:JXBannerMaskViewDirectionTypeRight];
+    
+    [self.bannerTransformMaskViewLeft setRadius:fabs(( scrollView.contentOffset.x -kJXWidth * currentPage - kJXWidth))*2 direction:JXBannerMaskViewDirectionTypeLeft];
     
     [self setupBannerBoundary:scrollView];
     
@@ -266,11 +302,11 @@
     CGFloat page = scrollView.contentOffset.x / scrollView.bounds.size.width ;
     if (page == 0) {
         
-        [scrollView setContentOffset:CGPointMake([UIScreen mainScreen].bounds.size.width*(self.bannerSources.count - 2), 0) animated:NO];
+        [scrollView setContentOffset:CGPointMake(kJXWidth*(self.bannerSources.count - 2), 0) animated:NO];
         self.pageControl.currentPage = self.bannerSources.count - 2;
     } else if ((int)page == self.bannerSources.count - 1 ) {
         
-        [scrollView setContentOffset:CGPointMake([UIScreen mainScreen].bounds.size.width, 0) animated:NO];
+        [scrollView setContentOffset:CGPointMake(kJXWidth, 0) animated:NO];
         self.pageControl.currentPage = 0;
     } else {
         self.pageControl.currentPage    = (int)page - 1;
@@ -283,6 +319,13 @@
     JXBannerModel *model = [self.bannerSources objectAtIndex:index];
     [self.bannerBackImageView sd_setImageWithURL:[NSURL URLWithString:model.backImageUrlStr]];
 }
+// 处理当前背景底部图片
+- (void)setupCurrentBackBottomImageViewWithIndex:(NSInteger)index {
+    if (self.bannerSources.count <= index) return;
+    JXBannerModel *model = [self.bannerSources objectAtIndex:index];
+    [self.bannerBackBottomImageView sd_setImageWithURL:[NSURL URLWithString:model.backImageUrlStr]];
+}
+
 #pragma mark - Get
 - (CGFloat)bannerTopMargin {
     return JXUI_IS_IPHONEX ? kJX_IPHONEX_TOP : kJX_IPHONE_TOP;
@@ -325,6 +368,13 @@
     return _bannerBackImageView;
 }
 
+- (UIImageView *)bannerBackBottomImageView {
+    if (_bannerBackBottomImageView == nil) {
+        _bannerBackBottomImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height-kJXBannerBackImageViewBottomMargin)];
+    }
+    return _bannerBackBottomImageView;
+}
+
 - (UIView *)bannerMaskView {
     if (_bannerMaskView == nil) {
         _bannerMaskView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height-kJXBannerBackImageViewBottomMargin)];
@@ -332,11 +382,18 @@
     return _bannerMaskView;
 }
 
-- (JXBannerMaskView *)bannerTransformMaskView {
-    if (_bannerTransformMaskView == nil) {
-        _bannerTransformMaskView = [[JXBannerMaskView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height-kJXBannerBackImageViewBottomMargin)];
+- (JXBannerMaskView *)bannerTransformMaskViewLeft {
+    if (_bannerTransformMaskViewLeft == nil) {
+        _bannerTransformMaskViewLeft = [[JXBannerMaskView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height-kJXBannerBackImageViewBottomMargin)];
     }
-    return _bannerTransformMaskView;
+    return _bannerTransformMaskViewLeft;
+}
+
+- (JXBannerMaskView *)bannerTransformMaskViewRight {
+    if (_bannerTransformMaskViewRight == nil) {
+        _bannerTransformMaskViewRight = [[JXBannerMaskView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height-kJXBannerBackImageViewBottomMargin)];
+    }
+    return _bannerTransformMaskViewRight;
 }
 
 - (JXPageControl *)pageControl {

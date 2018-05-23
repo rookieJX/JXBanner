@@ -32,7 +32,7 @@
     self.backgroundColor = [UIColor clearColor];
     if (_direction != JXBannerMaskViewDirectionTypeUnKnow) {
         CGContextRef ctx = UIGraphicsGetCurrentContext();
-        if (_direction == JXBannerMaskViewDirectionTypeLeft){
+        if (_direction == JXBannerMaskViewDirectionTypeRight){
             CGContextAddArc(ctx, self.center.x + rect.size.width/2, self.center.y, _maskRadius, 0, M_PI * 2, NO);
         }else{
             CGContextAddArc(ctx, self.center.x - rect.size.width/2, self.center.y, _maskRadius, 0, M_PI * 2, NO);
