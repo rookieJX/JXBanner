@@ -153,12 +153,12 @@
 // 手动转动结束
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
     NSLog(@"手动拖动结束----");
-    self.lastContentOffset = scrollView.contentOffset.x;
+  
 
     [self setupBannerScrollEnd:scrollView];
     
-    [self setupCurrentBackImageViewWithIndex:self.currentBannerIndex];
     [self setupCurrentBackBottomImageViewWithIndex:self.currentBannerIndex];
+    [self setupCurrentBackImageViewWithIndex:self.currentBannerIndex];
 }
 
 // 自动转动结束
@@ -171,12 +171,14 @@
 }
 #pragma mark - JXBannerCellDelegate
 - (void)bannerCellActionForLongPressStart:(JXBannerCell *)cell {
+    NSLog(@"长按开始-----");
     [self stopTimer];
     [UIView animateWithDuration:kJXBannerTransFormTime animations:^{
         cell.transform = CGAffineTransformMakeScale(kJXBannerTransformScale, kJXBannerTransformScale);
     }];
 }
 - (void)bannerCellActionForLongPressEnd:(JXBannerCell *)cell {
+    NSLog(@"长按结束-----");
     [self startTimer];
     [UIView animateWithDuration:kJXBannerTransFormTime animations:^{
         cell.transform = CGAffineTransformMakeScale(1, 1);
@@ -188,8 +190,8 @@
 - (void)startTimer {
     [self stopTimer];
     
-//    self.timer = [NSTimer timerWithTimeInterval:self.timerInterVal target:self selector:@selector(actionForAutoScroll) userInfo:nil repeats:YES];
-//    [[NSRunLoop mainRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
+    self.timer = [NSTimer timerWithTimeInterval:self.timerInterVal target:self selector:@selector(actionForAutoScroll) userInfo:nil repeats:YES];
+    [[NSRunLoop mainRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
 }
 - (void)stopTimer {
     if (_timer != nil) {
