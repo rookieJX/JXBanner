@@ -83,9 +83,8 @@
     [self addSubview:self.pageControl];
     
     self.bannerBackImageView.maskView = self.bannerMaskView;
-    
-    [self.bannerMaskView addSubview:self.bannerTransformMaskViewLeft];
     [self.bannerMaskView addSubview:self.bannerTransformMaskViewRight];
+    [self.bannerMaskView addSubview:self.bannerTransformMaskViewLeft];
 }
 
 #pragma mark - Meth
@@ -143,31 +142,29 @@
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+    NSLog(@"开始拖动------");
     [self stopTimer];
-}
-
-- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
-    [self startTimer];
 }
 
 // 手动转动结束
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
     NSLog(@"手动拖动结束----");
-  
-
-    [self setupBannerScrollEnd:scrollView];
+    [self startTimer];
     
     [self setupCurrentBackBottomImageViewWithIndex:self.currentBannerIndex];
-    [self setupCurrentBackImageViewWithIndex:self.currentBannerIndex];
+    
+    [self setupBannerScrollEnd:scrollView];
+    
 }
 
 // 自动转动结束
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
     NSLog(@"自动拖动结束----");
+    
+    [self setupCurrentBackBottomImageViewWithIndex:self.currentBannerIndex];
+    
     [self setupBannerScrollEnd:scrollView];
     
-    [self setupCurrentBackImageViewWithIndex:self.currentBannerIndex];
-    [self setupCurrentBackBottomImageViewWithIndex:self.currentBannerIndex];
 }
 #pragma mark - JXBannerCellDelegate
 - (void)bannerCellActionForLongPressStart:(JXBannerCell *)cell {
@@ -223,8 +220,7 @@
 
 // 轮播图正向轮播
 - (void)setupBannerStartPositive:(UIScrollView *)scrollView {
-    NSLog(@"正向拖动轮播-----");
-    NSInteger currentIndex = self.currentBannerIndex;
+    NSInteger currentIndex = scrollView.contentOffset.x / scrollView.contentSize.width;
     NSInteger nextIndex = (currentIndex + 1) >= self.bannerSources.count ? 0 : currentIndex + 1;
     
     UICollectionViewCell *cell1 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:currentIndex inSection:0]];
@@ -233,8 +229,9 @@
     cell1.transform = CGAffineTransformMakeScale(kJXBannerTransformScale, kJXBannerTransformScale);
     cell2.transform = CGAffineTransformMakeScale(kJXBannerTransformScale, kJXBannerTransformScale);
     
-    // 设置背景图片
-    NSInteger currentPage = scrollView.contentOffset.x / scrollView.bounds.size.width;
+    // 设置背景图片 （+1是为了防止每次移动到最后下标会增加1）
+    NSInteger currentPage = scrollView.contentOffset.x / (scrollView.bounds.size.width+1);
+    NSLog(@"正向拖动轮播-----%ld",currentPage);
     NSInteger nextPage    = (currentPage + 1) >= self.bannerSources.count ? 0 : currentPage + 1;
     [self setupCurrentBackImageViewWithIndex:nextPage];
     
@@ -248,7 +245,7 @@
 
 // 轮播图反向轮播
 - (void)setupBannerStartReverse:(UIScrollView *)scrollView {
-     NSLog(@"反向拖动轮播-----");
+    NSLog(@"反向拖动轮播-----");
     NSInteger currentIndex = self.currentBannerIndex;
     NSInteger preIndex = (currentIndex - 1 < 0) ? self.bannerSources.count : currentIndex - 1;
     
@@ -261,9 +258,7 @@
     // 设置背景图片
     NSInteger currentPage = scrollView.contentOffset.x / scrollView.bounds.size.width;
     [self setupCurrentBackImageViewWithIndex:currentPage];
-    
     [self.bannerTransformMaskViewRight setRadius:0 direction:JXBannerMaskViewDirectionTypeRight];
-    
     [self.bannerTransformMaskViewLeft setRadius:fabs(( scrollView.contentOffset.x -kJXWidth * currentPage - kJXWidth))*2 direction:JXBannerMaskViewDirectionTypeLeft];
     
     [self setupBannerBoundary:scrollView];
@@ -273,7 +268,6 @@
 // 轮播结束后复原
 - (void)setupBannerScrollEnd:(UIScrollView *)scrollView {
     NSInteger currentIndex = [self currentBannerIndex];
-    
     
     UICollectionViewCell *boundryCell = nil;
     
