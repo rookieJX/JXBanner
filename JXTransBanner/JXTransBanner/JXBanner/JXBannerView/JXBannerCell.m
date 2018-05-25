@@ -34,7 +34,8 @@
 #pragma mark - UI
 - (void)setupUI {
     self.bannerImageView = [[UIImageView alloc] initWithFrame:CGRectMake(kJXBannerCellMargin, 0, self.frame.size.width-kJXBannerCellMargin-kJXBannerCellMargin, self.frame.size.height)];
-    self.bannerImageView.image = [UIImage imageNamed:@"01"];
+    self.bannerImageView.clipsToBounds = YES;
+    self.bannerImageView.layer.cornerRadius = 5.0f;
     [self.contentView addSubview:self.bannerImageView];
     
     // 添加长按手势
