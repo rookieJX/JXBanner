@@ -125,6 +125,13 @@
     return cell;
 }
 
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    JXBannerModel  *model = [self.bannerSources objectAtIndex:indexPath.row];
+    if (self.jx_delegate && [self.jx_delegate respondsToSelector:@selector(bannerView:didClickItemWithModel:)]) {
+        [self.jx_delegate bannerView:self didClickItemWithModel:model];
+    }
+}
+
 #pragma mark - UIScrollViewDelegate
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     

@@ -10,7 +10,7 @@
 #import "JXBannerView.h"
 #import "JXBannerModel.h"
 
-@interface ViewController ()
+@interface ViewController ()<JXBannerViewDelegate>
 
 @end
 
@@ -56,6 +56,7 @@
     [self.view addSubview:transFromView];
     
 }
+
 
 
 @end

@@ -8,7 +8,19 @@
 
 #import <UIKit/UIKit.h>
 
+@class JXBannerView,JXBannerModel;
+
+@protocol JXBannerViewDelegate <NSObject>
+
+@optional
+- (void)bannerView:(JXBannerView *)view didClickItemWithModel:(JXBannerModel *)model;
+
+@end
+
+
 @interface JXBannerView : UIView
+
+@property (nonatomic,weak) id<JXBannerViewDelegate> jx_delegate;
 
 /** 设置数据源 */
 - (void)setupBannerSources:(NSArray *)banners;
