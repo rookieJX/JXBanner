@@ -42,18 +42,18 @@
     model4.imageUrlStr = @"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1526929052620&di=fe1d4b47a1f803366586b729516382d4&imgtype=0&src=http%3A%2F%2Fnews.youth.cn%2Fyl%2F201412%2FW020141214362909268739.jpg";
     model4.backImageUrlStr = @"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1526929052620&di=fe1d4b47a1f803366586b729516382d4&imgtype=0&src=http%3A%2F%2Fnews.youth.cn%2Fyl%2F201412%2FW020141214362909268739.jpg";
     
-    NSArray *bannerArray = @[model1,model2,model3,model4];
+    NSArray *bannerArray = @[model1,model2];
     [bannerView setupBannerSources:bannerArray];
     
     
-    UIView *transFromView = [[UIView alloc] initWithFrame:CGRectMake(0, 400, [UIScreen mainScreen].bounds.size.width, 300)];
-    transFromView.backgroundColor = [UIColor redColor];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [UIView animateWithDuration:2 animations:^{
-            transFromView.transform = CGAffineTransformMakeScale(0.85, 0.85);
-        }];
-    });
-    [self.view addSubview:transFromView];
+//    UIView *transFromView = [[UIView alloc] initWithFrame:CGRectMake(0, 400, [UIScreen mainScreen].bounds.size.width, 300)];
+//    transFromView.backgroundColor = [UIColor redColor];
+//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//        [UIView animateWithDuration:2 animations:^{
+//            transFromView.transform = CGAffineTransformMakeScale(0.85, 0.85);
+//        }];
+//    });
+//    [self.view addSubview:transFromView];
     
 }
 

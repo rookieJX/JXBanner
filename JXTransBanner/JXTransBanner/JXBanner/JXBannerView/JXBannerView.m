@@ -19,7 +19,7 @@
 #define kJXWidth [UIScreen mainScreen].bounds.size.width // 宽度
 
 #define kJXBannerTransformScale 0.85  // 变形比例
-#define kJXBannerTransFormTime  0.5   // 变形时间
+#define kJXBannerTransFormTime  0.85   // 变形时间
 
 #define kJX_IPHONEX_TOP 88.0f  // 如果是iPhone X，banner轮播距离顶部距离
 #define kJX_IPHONE_TOP  64.0f  // 如果是iPhone，banner轮播距离顶部距离
@@ -120,6 +120,9 @@
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     JXBannerCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kJXBannerViewCellIdentifier forIndexPath:indexPath];
     cell.delegate   = self;
+    [UIView animateWithDuration:kJXBannerTransFormTime animations:^{
+        cell.transform = CGAffineTransformMakeScale(1, 1);
+    }];
     JXBannerModel  *model = [self.bannerSources objectAtIndex:indexPath.row];
     [cell setupBannerDataWithModel:model];
     return cell;
@@ -134,7 +137,6 @@
 
 #pragma mark - UIScrollViewDelegate
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    
     CGFloat curretContentOffset = scrollView.contentOffset.x;
     if (scrollView.isDragging || scrollView.isDecelerating) { // 拖动
         if (self.lastContentOffset > curretContentOffset) { // 轮播图反向轮播
@@ -149,40 +151,36 @@
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
-    NSLog(@"开始拖动------");
     [self stopTimer];
+    
 }
 
 // 手动转动结束
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-    NSLog(@"手动拖动结束----");
     [self startTimer];
     
     [self setupCurrentBackBottomImageViewWithIndex:self.currentBannerIndex];
     
-    [self setupBannerScrollEnd:scrollView];
+    [self setupBannerBoundary:scrollView];
     
 }
 
 // 自动转动结束
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
-    NSLog(@"自动拖动结束----");
     
     [self setupCurrentBackBottomImageViewWithIndex:self.currentBannerIndex];
     
-    [self setupBannerScrollEnd:scrollView];
+    [self setupBannerBoundary:scrollView];
     
 }
 #pragma mark - JXBannerCellDelegate
 - (void)bannerCellActionForLongPressStart:(JXBannerCell *)cell {
-    NSLog(@"长按开始-----");
     [self stopTimer];
     [UIView animateWithDuration:kJXBannerTransFormTime animations:^{
         cell.transform = CGAffineTransformMakeScale(kJXBannerTransformScale, kJXBannerTransformScale);
     }];
 }
 - (void)bannerCellActionForLongPressEnd:(JXBannerCell *)cell {
-    NSLog(@"长按结束-----");
     [self startTimer];
     [UIView animateWithDuration:kJXBannerTransFormTime animations:^{
         cell.transform = CGAffineTransformMakeScale(1, 1);
@@ -208,16 +206,7 @@
 // 定时器任务
 - (void)actionForAutoScroll {
     if (self.bannerSources.count == 0) return;
-    NSUInteger currentIndex = [self currentBannerIndex];
-    NSUInteger targetIndex  = currentIndex + 1;
-    
-    // 设置转动效果
-    UICollectionViewCell *cell = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForRow:currentIndex inSection:0]];
-    [UIView animateWithDuration:kJXBannerTransFormTime animations:^{
-        cell.transform = CGAffineTransformMakeScale(kJXBannerTransformScale, kJXBannerTransformScale);
-    } completion:^(BOOL finished) {
-        [self scrollToIndex:targetIndex];
-    }];
+    [self scrollToIndex:[self currentBannerIndex]+1];
 }
 
 - (void)scrollToIndex:(NSInteger)targetIndex {
@@ -227,7 +216,7 @@
 
 // 轮播图正向轮播
 - (void)setupBannerStartPositive:(UIScrollView *)scrollView {
-    NSInteger currentIndex = scrollView.contentOffset.x / scrollView.contentSize.width;
+    NSInteger currentIndex = scrollView.contentOffset.x / scrollView.frame.size.width;
     NSInteger nextIndex = (currentIndex + 1) >= self.bannerSources.count ? 0 : currentIndex + 1;
     
     UICollectionViewCell *cell1 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:currentIndex inSection:0]];
@@ -238,23 +227,19 @@
     
     // 设置背景图片 （+1是为了防止每次移动到最后下标会增加1）
     NSInteger currentPage = scrollView.contentOffset.x / (scrollView.bounds.size.width+1);
-    NSLog(@"正向拖动轮播-----%ld",currentPage);
+    
     NSInteger nextPage    = (currentPage + 1) >= self.bannerSources.count ? 0 : currentPage + 1;
     [self setupCurrentBackImageViewWithIndex:nextPage];
     
     [self.bannerTransformMaskViewRight setRadius:((scrollView.contentOffset.x - kJXWidth * currentPage)*2) direction:JXBannerMaskViewDirectionTypeRight];
     [self.bannerTransformMaskViewLeft setRadius:0 direction:JXBannerMaskViewDirectionTypeLeft];
-    
-    [self setupBannerBoundary:scrollView];
-    
 
 }
 
 // 轮播图反向轮播
 - (void)setupBannerStartReverse:(UIScrollView *)scrollView {
-    NSLog(@"反向拖动轮播-----");
     NSInteger currentIndex = self.currentBannerIndex;
-    NSInteger preIndex = (currentIndex - 1 < 0) ? self.bannerSources.count : currentIndex - 1;
+    NSInteger preIndex = (currentIndex - 1 <= 0) ? self.bannerSources.count-1 : currentIndex - 1;
     
     UICollectionViewCell *cell1 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:currentIndex inSection:0]];
     UICollectionViewCell *cell2 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:preIndex inSection:0]];
@@ -268,32 +253,24 @@
     [self.bannerTransformMaskViewRight setRadius:0 direction:JXBannerMaskViewDirectionTypeRight];
     [self.bannerTransformMaskViewLeft setRadius:fabs(( scrollView.contentOffset.x -kJXWidth * currentPage - kJXWidth))*2 direction:JXBannerMaskViewDirectionTypeLeft];
     
-    [self setupBannerBoundary:scrollView];
-    
 }
 
 // 轮播结束后复原
 - (void)setupBannerScrollEnd:(UIScrollView *)scrollView {
-    NSInteger currentIndex = [self currentBannerIndex];
+    NSInteger currentIndex = scrollView.contentOffset.x / scrollView.bounds.size.width;
     
-    UICollectionViewCell *boundryCell = nil;
-    
-    if (currentIndex == 0) {
-        boundryCell = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:(self.bannerSources.count - 2) inSection:0]];
-    } else if ((int)currentIndex == self.bannerSources.count - 1 ) {
-        boundryCell = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:1 inSection:0]];
-    }
     
     UICollectionViewCell *cell1 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:currentIndex inSection:0]];
     UICollectionViewCell *cell2 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:(currentIndex + 1 >= self.bannerSources.count) ? 0 : currentIndex + 1 inSection:0]];
-    UICollectionViewCell *cell3 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:(currentIndex - 1 < 0) ? self.bannerSources.count : currentIndex - 1 inSection:0]];
-    
+    UICollectionViewCell *cell3 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:(currentIndex - 1 <= 0) ? self.bannerSources.count : currentIndex - 1 inSection:0]];
+    UICollectionViewCell *cell4 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:1 inSection:0]];
+    UICollectionViewCell *cell5 = [self.bannerView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:self.bannerSources.count - 2 inSection:0]];
     [UIView animateWithDuration:kJXBannerTransFormTime animations:^{
-        
-        boundryCell.transform = CGAffineTransformMakeScale(1, 1);
         cell1.transform = CGAffineTransformMakeScale(1, 1);
         cell2.transform = CGAffineTransformMakeScale(1, 1);
         cell3.transform = CGAffineTransformMakeScale(1, 1);
+        cell4.transform = CGAffineTransformMakeScale(1, 1);
+        cell5.transform = CGAffineTransformMakeScale(1, 1);
     }];
 }
 
@@ -309,9 +286,11 @@
         
         [scrollView setContentOffset:CGPointMake(kJXWidth, 0) animated:NO];
         self.pageControl.currentPage = 0;
+        
     } else {
         self.pageControl.currentPage    = (int)page - 1;
     }
+    [self setupBannerScrollEnd:scrollView];
 }
 
 // 处理当前背景图片
@@ -355,6 +334,8 @@
         _bannerView.delegate    = self;
         _bannerView.dataSource  = self;
         _bannerView.pagingEnabled   = YES;
+        _bannerView.bounces = NO;
+        _bannerView.decelerationRate = 0.7;
         _bannerView.backgroundColor = [UIColor clearColor];
         _bannerView.showsHorizontalScrollIndicator  = NO;
         [_bannerView registerClass:kJXBannerCellClass forCellWithReuseIdentifier:kJXBannerViewCellIdentifier];
